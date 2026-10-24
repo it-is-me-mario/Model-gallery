@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/it-is-me-mario/Model-gallery/blob/main/catalog/schema.json",
+  "title": "MARIO gallery catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date"
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": [
+              "learning-resource",
+              "method-example",
+              "research-model"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "repository": {
+                "type": "string",
+                "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+              },
+              "commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "entrypoint": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "repository",
+              "commit",
+              "entrypoint",
+              "owner"
+            ]
+          },
+          "mario": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "distribution": {
+                "const": "mariopy"
+              },
+              "version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "distribution",
+              "version"
+            ]
+          },
+          "readiness": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "enum": [
+                  "setup-documented",
+                  "setup-needed",
+                  "update-needed"
+                ]
+              },
+              "notes": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "status",
+              "notes"
+            ]
+          },
+          "execution": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "status": {
+                "enum": [
+                  "not-run",
+                  "partially-verified",
+                  "verified"
+                ]
+              },
+              "verified_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              }
+            },
+            "required": [
+              "status",
+              "verified_at"
+            ]
+          },
+          "source_reviewed_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "what_to_learn": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "publications": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "doi": {
+                  "type": "string",
+                  "pattern": "^10\\.[0-9]{4,9}/\\S+$"
+                },
+                "association": {
+                  "enum": [
+                    "confirmed",
+                    "candidate"
+                  ]
+                }
+              },
+              "required": [
+                "title",
+                "doi",
+                "association"
+              ]
+            }
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://"
+                },
+                "access": {
+                  "enum": [
+                    "included",
+                    "download",
+                    "see-source"
+                  ]
+                },
+                "notes": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "name",
+                "url",
+                "access",
+                "notes"
+              ]
+            }
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://"
+                }
+              },
+              "required": [
+                "label",
+                "url"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "kind",
+          "summary",
+          "source",
+          "mario",
+          "readiness",
+          "execution",
+          "source_reviewed_at",
+          "what_to_learn",
+          "publications",
+          "data",
+          "links"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "updated_at",
+    "models"
+  ]
+}

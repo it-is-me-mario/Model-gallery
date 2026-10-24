@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-24",
+  "models": [
+    {
+      "id": "tutorials",
+      "title": "MARIO tutorials",
+      "kind": "learning-resource",
+      "summary": "Focused examples for importing databases, adding sectors and calculating environmental footprints.",
+      "source": {
+        "repository": "https://github.com/it-is-me-mario/Tutorials",
+        "commit": "6ca6791f44f75270bea5254c764fd57291cf1377",
+        "entrypoint": null,
+        "owner": "it-is-me-mario"
+      },
+      "mario": {
+        "distribution": "mariopy",
+        "version": null
+      },
+      "readiness": {
+        "status": "update-needed",
+        "notes": "The examples cover several MARIO versions. The GTAP notebooks still refer to historical development branches; check compatibility before running."
+      },
+      "execution": {
+        "status": "not-run",
+        "verified_at": null
+      },
+      "source_reviewed_at": "2026-10-24",
+      "what_to_learn": [
+        "Choose a focused example for a particular modelling task.",
+        "Move from a pymrio database to MARIO, work with GTAP, or compare BONSAI GHG footprints."
+      ],
+      "publications": [],
+      "data": [
+        {
+          "name": "Example-specific database inputs",
+          "url": "https://www.marioproject.com/en/latest/resources/material.html",
+          "access": "see-source",
+          "notes": "Requirements differ by example. BONSAI and GTAP examples require the corresponding source data and access."
+        }
+      ],
+      "links": [
+        {
+          "label": "Downloadable material",
+          "url": "https://www.marioproject.com/en/latest/resources/material.html"
+        },
+        {
+          "label": "MARIO user guide",
+          "url": "https://www.marioproject.com/en/latest/user_guide/index.html"
+        }
+      ]
+    },
+    {
+      "id": "crash-course",
+      "title": "MARIO crash course",
+      "kind": "learning-resource",
+      "summary": "A hands-on course from input-output foundations to real databases, new sectors and scenarios.",
+      "source": {
+        "repository": "https://github.com/it-is-me-mario/Crash-course",
+        "commit": "ceb4ac379f92588e487e89ffb4b3221124932229",
+        "entrypoint": "notebooks/1. Foundations (test database).ipynb",
+        "owner": "it-is-me-mario"
+      },
+      "mario": {
+        "distribution": "mariopy",
+        "version": "1.0.2"
+      },
+      "readiness": {
+        "status": "setup-documented",
+        "notes": "The repository provides a uv environment and setup guide. Its README reports that Foundations was executed; this catalog has not independently rerun the course."
+      },
+      "execution": {
+        "status": "not-run",
+        "verified_at": null
+      },
+      "source_reviewed_at": "2026-10-24",
+      "what_to_learn": [
+        "Follow the three notebooks in order: foundations, EXIOBASE, and sectors and scenarios.",
+        "Use the additional SUT exercise and the recordings of the 2026 course."
+      ],
+      "publications": [],
+      "data": [
+        {
+          "name": "Built-in MARIO test tables",
+          "url": "https://www.marioproject.com/en/latest/get_started/index.html",
+          "access": "included",
+          "notes": "Foundations uses built-in test tables. The later notebooks require local EXIOBASE data."
+        }
+      ],
+      "links": [
+        {
+          "label": "Setup guide",
+          "url": "https://github.com/it-is-me-mario/Crash-course/blob/main/SETUP.md"
+        },
+        {
+          "label": "2026 course recordings",
+          "url": "https://github.com/it-is-me-mario/Crash-course/releases/tag/course-recordings-2026"
+        }
+      ]
+    },
+    {
+      "id": "mrio-disaggregation",
+      "title": "MRIO sector disaggregation",
+      "kind": "method-example",
+      "summary": "Split a cement sector from a small, two-region GTAP-based input-output table.",
+      "source": {
+        "repository": "https://github.com/it-is-me-mario/MRIO-disaggregation-model",
+        "commit": "81f3c077a9f514641ca17b114198189b8978266e",
+        "entrypoint": "Run_example_disaggregation.ipynb",
+        "owner": "it-is-me-mario"
+      },
+      "mario": {
+        "distribution": "mariopy",
+        "version": null
+      },
+      "readiness": {
+        "status": "update-needed",
+        "notes": "The notebook needs an update before running: three cells contain incomplete path assignments, and its instructions refer to the historical dev_gtap_VA branch."
+      },
+      "execution": {
+        "status": "not-run",
+        "verified_at": null
+      },
+      "source_reviewed_at": "2026-10-24",
+      "what_to_learn": [
+        "Represent a new sector with an inventory workbook.",
+        "Inspect the disaggregation workflow on a small EU27 / Rest of World example."
+      ],
+      "publications": [],
+      "data": [
+        {
+          "name": "Example database and inventory workbooks",
+          "url": "https://github.com/it-is-me-mario/MRIO-disaggregation-model",
+          "access": "included",
+          "notes": "GTAP12_example_db.xlsx and Inventory_example.xlsx are included in the source repository."
+        }
+      ],
+      "links": []
+    },
+    {
+      "id": "electricity-carbon-footprint",
+      "title": "Electricity carbon footprint",
+      "kind": "research-model",
+      "summary": "Calculate and compare electricity GHG intensities and life-cycle footprints across input-output databases.",
+      "source": {
+        "repository": "https://github.com/eNextHub/electricity-carbon-footprint",
+        "commit": "914da391ac84896eaf1537d1c0eb0a104c98fd8f",
+        "entrypoint": "run.ipynb",
+        "owner": "eNextHub"
+      },
+      "mario": {
+        "distribution": "mariopy",
+        "version": null
+      },
+      "readiness": {
+        "status": "setup-documented",
+        "notes": "The main pipeline requires local source databases and a MARIO version with calc_ghg. The linked blogpost revision contains later analysis and documentation updates; distinguish it from the main pipeline."
+      },
+      "execution": {
+        "status": "not-run",
+        "verified_at": null
+      },
+      "source_reviewed_at": "2026-10-24",
+      "what_to_learn": [
+        "Compare electricity footprints across databases and countries.",
+        "Inspect monetary-to-physical conversion and differences in system boundaries."
+      ],
+      "publications": [
+        {
+          "title": "Carbon intensity of electricity: a systematic methodological and quantitative review",
+          "doi": "10.1007/s44498-026-00148-3",
+          "association": "confirmed"
+        }
+      ],
+      "data": [
+        {
+          "name": "Source databases and comparison inputs",
+          "url": "https://github.com/eNextHub/electricity-carbon-footprint",
+          "access": "see-source",
+          "notes": "The source README describes local input paths and source-specific access requirements. A common unit does not make all system boundaries equivalent."
+        }
+      ],
+      "links": [
+        {
+          "label": "Blogpost analysis and documentation revision",
+          "url": "https://github.com/eNextHub/electricity-carbon-footprint/tree/eb92de9c0dc65eb4b485ffb5f3a6693533ca9f76"
+        },
+        {
+          "label": "Explore electricity results",
+          "url": "https://www.marioproject.com/en/latest/resources/data-explorer/electricity_carbon_footprint.html"
+        }
+      ]
+    },
+    {
+      "id": "pv-hlca",
+      "title": "Solar PV hybrid LCA",
+      "kind": "research-model",
+      "summary": "Embed the photovoltaic supply chain in a hybrid input-output model and assess EU reshoring scenarios.",
+      "source": {
+        "repository": "https://github.com/it-is-me-mario/pv-hlca-model",
+        "commit": "28a444dfb966887534ec6963dd3db8b7f5fee6b4",
+        "entrypoint": "notebooks/PV_HLCA_pipeline.ipynb",
+        "owner": "it-is-me-mario"
+      },
+      "mario": {
+        "distribution": "mariopy",
+        "version": "1.0.0"
+      },
+      "readiness": {
+        "status": "setup-documented",
+        "notes": "The source provides environment files, headless drivers and a baseline comparison. A rebuild from the linked database is an adaptation of the original base; check the declared reference and tolerances before claiming paper reproduction."
+      },
+      "execution": {
+        "status": "not-run",
+        "verified_at": null
+      },
+      "source_reviewed_at": "2026-10-24",
+      "what_to_learn": [
+        "Add an explicit PV supply chain to a hybrid supply-use model.",
+        "Compare reshoring scenarios, environmental and socio-economic outcomes, and sensitivity assumptions."
+      ],
+      "publications": [
+        {
+          "title": "Environmental and socio-economic implications of solar photovoltaic reshoring under the EU Net Zero Industry Act: a hybrid input-output assessment",
+          "doi": "10.1007/s44498-026-00175-0",
+          "association": "confirmed"
+        }
+      ],
+      "data": [
+        {
+          "name": "Base hybrid-units database",
+          "url": "https://zenodo.org/records/18744457",
+          "access": "download",
+          "notes": "Download the base files separately and configure their location as described in the source README."
+        }
+      ],
+      "links": []
+    },
+    {
+      "id": "fulfill",
+      "title": "FULFILL sufficiency scenarios",
+      "kind": "research-model",
+      "summary": "Assess environmental and socio-economic effects of household sufficiency measures in a decarbonising Europe.",
+      "source": {
+        "repository": "https://github.com/SESAM-Polimi/FULFILL_MARIO",
+        "commit": "cf8a79bc99d61713ae8ff9b4e864cd3e51cde9ef",
+        "entrypoint": "1. Database building.ipynb",
+        "owner": "SESAM-Polimi"
+      },
+      "mario": {
+        "distribution": "mariopy",
+        "version": "0.3.5"
+      },
+      "readiness": {
+        "status": "setup-documented",
+        "notes": "The source provides three sequential notebooks and a Conda environment. The full scenario sweep is substantial; no scenario has been rerun as part of this catalog review."
+      },
+      "execution": {
+        "status": "not-run",
+        "verified_at": null
+      },
+      "source_reviewed_at": "2026-10-24",
+      "what_to_learn": [
+        "Build the background database and scenario-specific shock files.",
+        "Trace sufficiency measures through emissions, value added and employment."
+      ],
+      "publications": [
+        {
+          "title": "The role of sufficiency measures in a decarbonizing Europe",
+          "doi": "10.1016/j.ecolecon.2025.108645",
+          "association": "confirmed"
+        },
+        {
+          "title": "Impact of sufficiency on achieving the EU's 2030 and 2050 greenhouse gas emissions targets",
+          "doi": "10.1016/j.sftr.2026.101791",
+          "association": "confirmed"
+        }
+      ],
+      "data": [
+        {
+          "name": "Study data and results",
+          "url": "https://doi.org/10.5281/zenodo.15070606",
+          "access": "download",
+          "notes": "Use the archive linked by the source README together with its notebook instructions."
+        }
+      ],
+      "links": []
+    },
+    {
+      "id": "gcam-mario-steel",
+      "title": "GCAM–MARIO steel scenarios",
+      "kind": "research-model",
+      "summary": "Explore steel and electricity mixes, trade and embodied emissions with MARIO and GCAM scenario inputs.",
+      "source": {
+        "repository": "https://github.com/SESAM-Polimi/ExioSteel",
+        "commit": "151dcf6bcdeed5a3f76277ace5decf93c408066a",
+        "entrypoint": "shocks_analysis.py",
+        "owner": "SESAM-Polimi"
+      },
+      "mario": {
+        "distribution": "mariopy",
+        "version": null
+      },
+      "readiness": {
+        "status": "setup-needed",
+        "notes": "The source contains MARIO code and GCAM steel and electricity inputs, but has no README or environment. Its association with the linked paper is a catalog candidate awaiting confirmation; the end-to-end workflow is not verified."
+      },
+      "execution": {
+        "status": "not-run",
+        "verified_at": null
+      },
+      "source_reviewed_at": "2026-10-24",
+      "what_to_learn": [
+        "Inspect how GCAM scenario inputs are translated into steel and electricity mixes.",
+        "Study embodied-emission calculations for steel policy scenarios."
+      ],
+      "publications": [
+        {
+          "title": "Linking Global Integrated Assessment and Hybrid Input–Output Models To Support Steel Decarbonization Policies in Europe",
+          "doi": "10.1021/acs.est.5c15099",
+          "association": "candidate"
+        }
+      ],
+      "data": [
+        {
+          "name": "Extended steel database cited by the paper",
+          "url": "https://doi.org/10.5281/zenodo.10843374",
+          "access": "download",
+          "notes": "This is the archive cited by the paper. Compatibility with this source revision still needs confirmation."
+        }
+      ],
+      "links": [
+        {
+          "label": "GCAM version cited by the paper",
+          "url": "https://github.com/russellhz/gcam-core/tree/Study9_IAMCOMPACT"
+        }
+      ]
+    }
+  ]
+}
