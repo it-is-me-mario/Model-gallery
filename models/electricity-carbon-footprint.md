@@ -1,35 +1,35 @@
-# Electricity carbon footprint
+# Electricity carbon intensity
 
-Calculate and compare electricity GHG intensities and life-cycle footprints across input-output databases.
+Camilla Citterio, Nicolò Golinucci, Lorenzo Rinaldi, Matteo Vincenzo Rocco (2026). [Carbon intensity of electricity: a systematic methodological and quantitative review](https://doi.org/10.1007/s44498-026-00148-3). *Journal of Industrial Ecology*.
 
-[Source repository](https://github.com/eNextHub/electricity-carbon-footprint) · [Starting point](https://github.com/eNextHub/electricity-carbon-footprint/blob/914da391ac84896eaf1537d1c0eb0a104c98fd8f/run.ipynb) · [Back to the gallery](../README.md)
+Compare electricity emission factors and explain differences between data sources and accounting methods.
 
-## What you can learn
+## Model and scope
 
-- Compare electricity footprints across databases and countries.
-- Inspect monetary-to-physical conversion and differences in system boundaries.
+Compares technology and national electricity intensities across input-output databases and other sources, with attention to system boundaries and conversion to physical units.
 
-## Before you run it
+Electricity technologies and national mixes; direct and life-cycle greenhouse-gas intensities.
 
-**Setup documented.** The main pipeline requires local source databases and a MARIO version with calc_ghg. The linked blogpost revision contains later analysis and documentation updates; distinguish it from the main pipeline.
+## Database
 
-MARIO distribution: `mariopy`; version: **not pinned in this catalog**.
+The analysis uses several databases, including monetary and hybrid tables. Its model structure is deliberately independent of a single common background database.
 
-- [Source databases and comparison inputs](https://github.com/eNextHub/electricity-carbon-footprint) — The source README describes local input paths and source-specific access requirements. A common unit does not make all system boundaries equivalent.
+[Database lineage](../databases.md)
 
-## Publications
+## Available editions
 
-- [Carbon intensity of electricity: a systematic methodological and quantitative review](https://doi.org/10.1007/s44498-026-00148-3).
+### Comparison pipeline
 
-## Further resources
+Notebook and helpers for calculating and comparing electricity footprints.
 
-- [Blogpost analysis and documentation revision](https://github.com/eNextHub/electricity-carbon-footprint/tree/eb92de9c0dc65eb4b485ffb5f3a6693533ca9f76)
-- [Explore electricity results](https://www.marioproject.com/en/latest/resources/data-explorer/electricity_carbon_footprint.html)
+[Code and instructions](https://github.com/eNextHub/electricity-carbon-footprint/blob/914da391ac84896eaf1537d1c0eb0a104c98fd8f/run.ipynb) · [Recorded revision 914da391](https://github.com/eNextHub/electricity-carbon-footprint/tree/914da391ac84896eaf1537d1c0eb0a104c98fd8f)
 
-## Source and verification
+* [Input requirements and source databases](https://github.com/eNextHub/electricity-carbon-footprint/blob/914da391ac84896eaf1537d1c0eb0a104c98fd8f/README.md)
 
-Source maintained by [eNextHub](https://github.com/eNextHub). This catalog records revision [`914da391ac84`](https://github.com/eNextHub/electricity-carbon-footprint/tree/914da391ac84896eaf1537d1c0eb0a104c98fd8f), inspected on 2026-10-24.
+Source database access and local paths must be configured before running the notebook.
 
-**Execution has not been independently checked for this catalog.** The source review identifies available code and documentation; it does not certify reproduction of published results. Consult the source repository and data providers for their reuse terms.
+* [Explore electricity results](https://explorer.marioproject.com/resources/data-explorer/electricity_carbon_footprint.html)
 
-[Suggest a correction](../CONTRIBUTING.md)
+Source review: 2026-11-16. Models have not been rerun by the gallery. Execution evidence linked above belongs to the source maintainers.
+
+[All models](../README.md)
