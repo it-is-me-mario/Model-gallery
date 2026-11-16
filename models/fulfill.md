@@ -1,31 +1,39 @@
-# FULFILL sufficiency scenarios
+# Sufficiency in a decarbonising Europe
 
-Assess environmental and socio-economic effects of household sufficiency measures in a decarbonising Europe.
+Nicolò Golinucci, Matteo Vincenzo Rocco, Matteo Giacomo Prina, Filippo Beltrami, Lorenzo Rinaldi, Erwin M. Schau, Wolfram Sparber (2025). [The role of sufficiency measures in a decarbonizing Europe](https://doi.org/10.1016/j.ecolecon.2025.108645). *Ecological Economics*.
 
-[Source repository](https://github.com/SESAM-Polimi/FULFILL_MARIO) · [Starting point](https://github.com/SESAM-Polimi/FULFILL_MARIO/blob/cf8a79bc99d61713ae8ff9b4e864cd3e51cde9ef/1.%20Database%20building.ipynb) · [Back to the gallery](../README.md)
+Assess household sufficiency measures alongside changes in the European energy system.
 
-## What you can learn
+## Model and scope
 
-- Build the background database and scenario-specific shock files.
-- Trace sufficiency measures through emissions, value added and employment.
+Combines sufficiency measures with a changing production background to calculate environmental and socio-economic effects.
 
-## Before you run it
+Household-demand scenarios, greenhouse gases, value added and employment.
 
-**Setup documented.** The source provides three sequential notebooks and a Conda environment. The full scenario sweep is substantial; no scenario has been rerun as part of this catalog review.
+## Database
 
-MARIO distribution: `mariopy`; version: **0.3.5**.
+The database-building notebook starts from EXIOBASE Hybrid v3.3.18 and applies its own aggregation and extensions. Compatibility with current NXSUT has not been established.
 
-- [Study data and results](https://doi.org/10.5281/zenodo.15070606) — Use the archive linked by the source README together with its notebook instructions.
+[Database lineage](../databases.md)
 
-## Publications
+## Available editions
 
-- [The role of sufficiency measures in a decarbonizing Europe](https://doi.org/10.1016/j.ecolecon.2025.108645).
-- [Impact of sufficiency on achieving the EU's 2030 and 2050 greenhouse gas emissions targets](https://doi.org/10.1016/j.sftr.2026.101791).
+### FULFILL study workflow
 
-## Source and verification
+Three sequential notebooks build the database, prepare shocks and run the scenarios.
 
-Source maintained by [SESAM-Polimi](https://github.com/SESAM-Polimi). This catalog records revision [`cf8a79bc99d6`](https://github.com/SESAM-Polimi/FULFILL_MARIO/tree/cf8a79bc99d61713ae8ff9b4e864cd3e51cde9ef), inspected on 2026-10-24.
+[Code and instructions](https://github.com/SESAM-Polimi/FULFILL_MARIO/blob/cf8a79bc99d61713ae8ff9b4e864cd3e51cde9ef/1.%20Database%20building.ipynb) · [Recorded revision cf8a79bc](https://github.com/SESAM-Polimi/FULFILL_MARIO/tree/cf8a79bc99d61713ae8ff9b4e864cd3e51cde9ef)
 
-**Execution has not been independently checked for this catalog.** The source review identifies available code and documentation; it does not certify reproduction of published results. Consult the source repository and data providers for their reuse terms.
+MARIO version: **0.3.5**.
 
-[Suggest a correction](../CONTRIBUTING.md)
+* [Study data and results](https://doi.org/10.5281/zenodo.15070606)
+
+The exact version-specific data record still needs to be identified within the archive linked by the source README.
+
+## Related studies
+
+* [Sufficiency and EU climate targets](fulfill-targets.md)
+
+Source review: 2026-11-16. Models have not been rerun by the gallery. Execution evidence linked above belongs to the source maintainers.
+
+[All models](../README.md)

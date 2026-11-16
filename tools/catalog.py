@@ -1,108 +1,183 @@
-"""Validate the catalog and generate the README and model pages."""
+"""Validate study editions and render GitHub pages or an offline Sphinx export."""
 import argparse
+import hashlib
+from html import escape as esc
 import json
 from pathlib import Path
+import shutil
+import subprocess
 from urllib.parse import quote
 from jsonschema import Draft202012Validator, FormatChecker
 
 ROOT = Path(__file__).resolve().parents[1]
-LABELS = {'setup-documented':'Setup documented','setup-needed':'Setup to document','update-needed':'Example update needed'}
-KINDS = {'learning-resource':'Learning resources','method-example':'Modelling methods','research-model':'Research models'}
+LEGACY = {
+    'tutorials': ('MARIO tutorials', 'https://tutorials.marioproject.com/'),
+    'crash-course': ('MARIO crash course', 'https://github.com/it-is-me-mario/Crash-course'),
+    'mrio-disaggregation': ('Disaggregate MRIOs', 'https://tutorials.marioproject.com/'),
+}
+ICONS = {
+    'steel': '<path d="M3 21V10l6 4V8l7 4V3h4v18H3Z"/><path d="M7 17h1m4 0h1m4 0h1"/>',
+    'pv': '<path d="m5 10-2 10h18l-2-10H5Zm-1 5h16M10 10l-1 10m5-10 1 10M12 2v3M4 4l2 2m14-2-2 2"/>',
+    'sufficiency': '<path d="m3 11 9-8 9 8M5 10v11h14V10M10 21v-7h4v7"/>',
+    'electricity': '<path d="m13 2-9 12h7l-1 8 10-12h-7l1-8Z"/>',
+}
 
 def load_catalog():
-    catalog = json.loads((ROOT/'catalog/models.json').read_text())
-    schema = json.loads((ROOT/'catalog/schema.json').read_text())
+    c=json.loads((ROOT/'catalog/models.json').read_text())
+    schema=json.loads((ROOT/'catalog/schema.json').read_text())
     Draft202012Validator.check_schema(schema)
-    errors = sorted(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(catalog),key=lambda e:list(map(str,e.path)))
-    if errors:
-        raise ValueError('\n'.join(f'{list(e.path)}: {e.message}' for e in errors))
-    ids = [m['id'] for m in catalog['models']]
-    if len(ids) != len(set(ids)):
-        raise ValueError('Model ids must be unique')
-    for m in catalog['models']:
-        source = m['source']
-        if source['entrypoint'] and (source['entrypoint'].startswith('/') or '..' in Path(source['entrypoint']).parts):
-            raise ValueError(f"Invalid entrypoint in {m['id']}")
-        if source['repository'].split('/')[-2] != source['owner']:
-            raise ValueError(f"Source owner mismatch in {m['id']}")
-        execution = m['execution']
-        if (execution['status']=='not-run') != (execution['verified_at'] is None):
-            raise ValueError(f"Execution date must match verification status in {m['id']}")
-        if execution['status']!='not-run':
-            raise ValueError('Add the execution evidence contract before publishing verified records')
-    return catalog
+    Draft202012Validator(schema,format_checker=FormatChecker()).validate(c)
+    for collection in ('families','studies','foundations'):
+        ids=[x['id'] for x in c[collection]]
+        if len(ids)!=len(set(ids)): raise ValueError(f'Duplicate {collection} id')
+    ids={s['id'] for s in c['studies']}
+    families={f['id'] for f in c['families']}
+    dois=[s['publication']['doi'] for s in c['studies']]
+    if len(dois)!=len(set(dois)): raise ValueError('Each publication needs one study record')
+    for s in c['studies']:
+        if s['family'] not in families: raise ValueError('Unknown family')
+        if any(r not in ids or r==s['id'] for r in s['related']): raise ValueError('Invalid related study')
+        edition_ids=[e['id'] for e in s['editions']]
+        if len(edition_ids)!=len(set(edition_ids)): raise ValueError('Duplicate edition id')
+        for e in s['editions']:
+            if e['role']=='unmapped':
+                if e['source'] is not None or e['data']: raise ValueError('Unmapped editions cannot claim code or data')
+            elif e['source'] is None: raise ValueError('Mapped editions require a pinned source')
+            if e['source']:
+                p=e['source']['entrypoint']
+                if p and (p.startswith('/') or '..' in Path(p).parts): raise ValueError('Unsafe source entrypoint')
+    return c
 
-def revision_url(m):
-    s=m['source']
-    return f"{s['repository']}/tree/{s['commit']}"
+def href(src):
+    suffix='/blob/'+src['commit']+'/'+quote(src['entrypoint'],safe='/') if src['entrypoint'] else '/tree/'+src['commit']
+    return src['repository']+suffix
 
-def entry_url(m):
-    s=m['source']
-    return f"{s['repository']}/blob/{s['commit']}/{quote(s['entrypoint'],safe='/')}" if s['entrypoint'] else revision_url(m)
+def link(label,url,web=False):
+    return f'`{label} <{url}>`__' if web else f'[{label}]({url})'
 
-def card(m):
-    s=m['source']
-    out=[f"# {m['title']}\n\n",f"{m['summary']}\n\n",
-         f"[Source repository]({s['repository']}) · [Starting point]({entry_url(m)}) · [Back to the gallery](../README.md)\n\n",
-         '## What you can learn\n\n']
-    out += [f'- {x}\n' for x in m['what_to_learn']]
-    out += ['\n## Before you run it\n\n',f"**{LABELS[m['readiness']['status']]}.** {m['readiness']['notes']}\n\n",
-            f"MARIO distribution: `mariopy`; version: **{m['mario']['version'] or 'not pinned in this catalog'}**.\n\n"]
-    for d in m['data']:
-        out.append(f"- [{d['name']}]({d['url']}) — {d['notes']}\n")
-    if m['publications']:
-        out.append('\n## Publications\n\n')
-        for p in m['publications']:
-            note=' **Study association to confirm.**' if p['association']=='candidate' else ''
-            out.append(f"- [{p['title']}](https://doi.org/{p['doi']}).{note}\n")
-    if m['links']:
-        out.append('\n## Further resources\n\n')
-        out += [f"- [{l['label']}]({l['url']})\n" for l in m['links']]
-    out += ['\n## Source and verification\n\n',
-            f"Source maintained by [{s['owner']}](https://github.com/{s['owner']}). "
-            f"This catalog records revision [`{s['commit'][:12]}`]({revision_url(m)}), inspected on {m['source_reviewed_at']}.\n\n",
-            '**Execution has not been independently checked for this catalog.** The source review identifies available code and documentation; it does not certify reproduction of published results. Consult the source repository and data providers for their reuse terms.\n\n',
-            '[Suggest a correction](../CONTRIBUTING.md)\n']
-    return ''.join(out)
+def heading(title,level=1,web=False):
+    return title+'\n'+('=-~'[level-1]*len(title))+'\n\n' if web else '#'*level+' '+title+'\n\n'
 
-def readme(c):
-    out=['<p align="center"><a href="https://github.com/it-is-me-mario"><img src="https://raw.githubusercontent.com/it-is-me-mario/.github/main/profile/assets/mario-logo.png" width="80" alt="MARIO"></a></p>\n\n',
-         '# MARIO model gallery\n\n',
-         'Learn MARIO, explore modelling methods, and find research applications built with it.\n\n',
-         '[MARIO library](https://github.com/it-is-me-mario/MARIO) · [Documentation](https://www.marioproject.com/en/latest/) · [Contribute a resource](CONTRIBUTING.md)\n\n',
-         f"The initial collection contains **{len(c['models'])} resources**. Each page links to the original code, records the source revision, and explains the setup information available. Code remains with its maintainers.\n\n"]
-    for kind,label in KINDS.items():
-        subset=[m for m in c['models'] if m['kind']==kind]
-        if not subset:continue
-        out += [f'## {label}\n\n','| Resource | What it covers | Setup |\n|---|---|---|\n']
-        for m in subset:
-            out.append(f"| [{m['title']}](models/{m['id']}.md) | {m['summary']} | {LABELS[m['readiness']['status']]} |\n")
-        out.append('\n')
-    out += ['## Reading the collection\n\n',
-            '**Setup documented** means the source provides installation or execution instructions. **Setup to document** means those instructions need to be assembled. **Example update needed** marks an example with a known setup or code issue.\n\n',
-            '**None of the resources has been independently rerun for this catalog yet.** A source review and an executed reproduction are separate checks. The individual pages explain the current evidence and any uncertainty about a paper association.\n\n',
-            'When comparing results, keep the database release, MARIO version, scientific assumptions and calculation profile together. An updated analysis may differ from the version used in a paper.\n\n',
-            f"Last source review: **{c['updated_at']}**. [Catalog data](catalog/models.json) · [Catalog schema](catalog/schema.json) · [How to contribute](CONTRIBUTING.md)\n"]
-    return ''.join(out)
+def publication(p,web=False):
+    return ', '.join(p['authors'])+f" ({p['year']}). "+link(p['title'],'https://doi.org/'+p['doi'],web)+'. *'+p['journal']+'*.\n\n'
+
+def detail(s,c,web=False):
+    p=s['publication']
+    out=(f":page-type: Research model\n:summary: {s['summary']}\n\n" if web else '')+heading(s['title'],web=web)
+    out+=publication(p,web)+s['summary']+'\n\n'
+    out+=heading('Model and scope',2,web)+s['contribution']+'\n\n'+s['scope']+'\n\n'
+    out+=heading('Database',2,web)+s['data_lineage']+'\n\n'
+    out+=(':doc:`Database lineage <databases>`' if web else '[Database lineage](../databases.md)')+'\n\n'
+    if s['id']=='pv-hlca':
+        out+=heading('PV reconstruction results',2,web)
+        url='https://raw.githubusercontent.com/it-is-me-mario/pv-hlca-model/28a444dfb966887534ec6963dd3db8b7f5fee6b4/outputs/figures/Figure3.png'
+        caption='PV electricity footprints in g CO2eq/kWh, decomposed by activity and region of origin (top), and the relative contributions in the hybrid and top-down calculations (bottom). Figure 3 from the recorded PV repository revision; these are existing reconstruction outputs, not a new gallery execution.'
+        if web:
+            out+='.. figure:: assets/pv-reconstruction.png\n   :alt: PV electricity footprints by producing region, with activity and origin contributions.\n   :width: 100%\n\n   '+caption+'\n\n'
+        else:
+            out+='![PV electricity footprints](../assets/pv-reconstruction.png)\n\n'+caption+'\n\n'
+        out+=link('Original figure',url,web)+'\n\n'
+    out+=heading('Available editions',2,web)
+    for e in s['editions']:
+        out+=heading(e['label'],3,web)+e['scope']+'\n\n'
+        if e['source']:
+            src=e['source']
+            out+=link('Code and instructions',href(src),web)+' · '+link('Recorded revision '+src['commit'][:8],src['repository']+'/tree/'+src['commit'],web)+'\n\n'
+        if e['mario']:out+='MARIO version: **'+e['mario']+'**.\n\n'
+        for d in e['data']:out+='* '+link(d['label'],d['url'],web)+'\n'
+        if e['data']:out+='\n'
+        out+=e['limitations']+'\n\n'
+        for evidence in e['evidence']:out+='* '+link(evidence['label'],evidence['url'],web)+'\n'
+        if e['evidence']:out+='\n'
+    if s['related']:
+        out+=heading('Related studies',2,web)
+        for id in s['related']:
+            r=next(x for x in c['studies'] if x['id']==id)
+            out+=('* :doc:`'+r['title']+' <'+id+'>`\n' if web else '* '+link(r['title'],id+'.md')+'\n')
+        out+='\n'
+    out+='Source review: '+c['updated_at']+'. Models have not been rerun by the gallery. Execution evidence linked above belongs to the source maintainers.\n\n'
+    out+=(':doc:`All models <index>`' if web else '[All models](../README.md)')+'\n'
+    return out
+
+def databases(c,web=False):
+    out=(":page-type: Explanation\n:summary: Historical database editions and shared foundations of MARIO research models.\n\n" if web else '')+heading('Database lineage',web=web)
+    out+='A shared database connects studies without making their assumptions, code or results interchangeable. The editions on each study page identify the inputs actually documented by its authors.\n\n'
+    for d in c['foundations']:
+        out+=heading(d['title'],2,web)+d['description']+'\n\n'+link('Source and data',d['url'],web)+'\n\n'
+    out+=heading('Relationships between studies',2,web)
+    out+='The 2024 EU steel study introduces technology extensions to EXIOBASE Hybrid. Later Green steel releases broaden those extensions. The GCAM–MARIO workflow uses the steel modelling line; the PV model adds its own supply chain and regional aggregation. FULFILL develops a separate preparation from EXIOBASE Hybrid.\n\n'
+    out+=link('PV archive: documented relationship to Green steel','https://zenodo.org/records/20734983',web)+' · '+link('NXSUT methods and source','https://github.com/eNextHub/nxsut',web)+'\n\n'
+    out+=heading('Future editions using NXSUT',2,web)
+    out+='NXSUT is a candidate shared background for future development. Such an edition would need its own assumptions and comparison with reference results. Historical study releases remain available with their original inputs.\n\n'
+    out+=(':doc:`All models <index>`' if web else '[All models](README.md)')+'\n'
+    return out
+
+def index(c,web=False):
+    out=(":page-type: Research models\n:summary: Research models built with MARIO, organised by application and publication.\n\n" if web else '')+heading('Model gallery',web=web)
+    out+='Research models built with MARIO. Find the study, its modelling assumptions, and the available code and data.\n\n'
+    if web:
+        html=['<div class="mg-families">']
+        for f in c['families']:
+            html.append(f'<section class="mg-family" aria-labelledby="family-{f["id"]}"><div class="mg-heading"><svg viewBox="0 0 24 24" aria-hidden="true">{ICONS[f["id"]]}</svg><h2 id="family-{f["id"]}">{esc(f["title"])}</h2></div><p>{esc(f["summary"])}</p><ul>')
+            for s in c['studies']:
+                if s['family']!=f['id']:continue
+                p=s['publication'];name=p['authors'][0].split()[-1]
+                html.append(f'<li><a href="{s["id"]}.html"><strong>{esc(s["title"])}</strong><span>{esc(name)} et al. · {p["year"]}</span><span class="mg-arrow" aria-hidden="true">→</span></a></li>')
+            html.append('</ul></section>')
+        html.append('</div>')
+        out+='.. raw:: html\n\n'+'\n'.join('   '+x for x in html)+'\n\n'
+    else:
+        for f in c['families']:
+            out+=heading(f['title'],2)+f['summary']+'\n\n'
+            for s in c['studies']:
+                if s['family']==f['id']:out+='* '+link(s['title'],'models/'+s['id']+'.md')+f" — {s['publication']['year']}. "+s['summary']+'\n'
+            out+='\n'
+    out+=heading('Shared databases',2,web)
+    out+='Steel, photovoltaic and sufficiency studies share roots in EXIOBASE Hybrid, with different extensions and historical editions. NXSUT provides a possible common background for future development.\n\n'
+    out+=(':doc:`Follow the database lineage <databases>`' if web else '[Follow the database lineage](databases.md)')+'\n\n'
+    out+=heading('Learning resources',2,web)
+    out+=link('Tutorials','https://tutorials.marioproject.com/',web)+' and the '+link('MARIO crash course','https://github.com/it-is-me-mario/Crash-course',web)+' provide worked exercises and teaching material.\n\n'
+    if web:
+        out+='.. toctree::\n   :hidden:\n\n'+''.join('   '+s['id']+'\n' for s in c['studies'])+'   databases\n'
+    else:
+        out+='[Contributing](CONTRIBUTING.md) · [Catalog data](catalog/models.json)\n'
+    return out
+
+def outputs(c):
+    pages={ROOT/'README.md':index(c),ROOT/'databases.md':databases(c)}
+    pages.update({ROOT/'models'/f'{s["id"]}.md':detail(s,c) for s in c['studies']})
+    for id,(title,url) in LEGACY.items():
+        pages[ROOT/'models'/f'{id}.md']=heading(title)+'This learning resource is available at '+link(title,url)+'.\n\n[Model gallery](../README.md)\n'
+    return pages
+
+def export(c,dest):
+    dest.mkdir(parents=True,exist_ok=True)
+    pages={'index.rst':index(c,True),'databases.rst':databases(c,True)}
+    pages.update({s['id']+'.rst':detail(s,c,True) for s in c['studies']})
+    for name,content in pages.items(): (dest/name).write_text(content)
+    (dest/'assets').mkdir(exist_ok=True)
+    shutil.copyfile(ROOT/'assets/pv-reconstruction.png',dest/'assets/pv-reconstruction.png')
+    manifest={'repository':'https://github.com/it-is-me-mario/Model-gallery',
+        'source_revision': None if subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=ROOT,text=True).strip() else subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+        'catalog_sha256':hashlib.sha256((ROOT/'catalog/models.json').read_bytes()).hexdigest(),
+        'generator_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        'files':{n:hashlib.sha256(v.encode()).hexdigest() for n,v in pages.items()}}
+    manifest['files']['assets/pv-reconstruction.png']=hashlib.sha256((ROOT/'assets/pv-reconstruction.png').read_bytes()).hexdigest()
+    (dest/'catalog-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command',choices=['build','check'])
-    args=p.parse_args()
-    c=load_catalog()
-    generated={ROOT/'README.md':readme(c)}
-    generated.update({ROOT/'models'/f"{m['id']}.md":card(m) for m in c['models']})
-    stale=[]
-    for path,expected in generated.items():
-        if args.command=='build':
-            path.parent.mkdir(parents=True,exist_ok=True)
-            path.write_text(expected)
-        elif not path.exists() or path.read_text()!=expected:
-            stale.append(str(path.relative_to(ROOT)))
-    extra=set((ROOT/'models').glob('*.md'))-set(generated)
-    stale += [str(p.relative_to(ROOT))+' (not in catalog)' for p in sorted(extra)]
-    if stale:
-        raise SystemExit('Generated pages need attention: '+', '.join(stale))
-    print(f"Catalog valid: {len(c['models'])} resources; {len(generated)} generated pages {'written' if args.command=='build' else 'current'}.")
-
+    p.add_argument('command',choices=['build','check','export-sphinx'])
+    p.add_argument('--output',type=Path)
+    args=p.parse_args();c=load_catalog()
+    if args.command=='export-sphinx':
+        if not args.output:p.error('--output is required')
+        export(c,args.output)
+    else:
+        stale=[]
+        for path,content in outputs(c).items():
+            if args.command=='build':path.write_text(content)
+            elif not path.exists() or path.read_text()!=content:stale.append(str(path.relative_to(ROOT)))
+        if stale:raise SystemExit('Regenerate pages: '+', '.join(stale))
+    print(f"Catalog valid: {len(c['studies'])} studies in {len(c['families'])} families.")
 if __name__=='__main__':main()

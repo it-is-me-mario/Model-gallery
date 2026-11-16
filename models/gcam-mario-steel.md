@@ -1,34 +1,54 @@
 # GCAM–MARIO steel scenarios
 
-Explore steel and electricity mixes, trade and embodied emissions with MARIO and GCAM scenario inputs.
+Debora Ghezzi, Lorenzo Rinaldi, Russell Horowitz, Dirk-Jan van de Ven, Georg Holtz, Alexander Jülich, Matteo Vincenzo Rocco (2026). [Linking Global Integrated Assessment and Hybrid Input–Output Models To Support Steel Decarbonization Policies in Europe](https://doi.org/10.1021/acs.est.5c15099). *Environmental Science \& Technology*.
 
-[Source repository](https://github.com/SESAM-Polimi/ExioSteel) · [Starting point](https://github.com/SESAM-Polimi/ExioSteel/blob/151dcf6bcdeed5a3f76277ace5decf93c408066a/shocks_analysis.py) · [Back to the gallery](../README.md)
+Link GCAM technology pathways with hybrid input-output footprints for European steel policy.
 
-## What you can learn
+## Model and scope
 
-- Inspect how GCAM scenario inputs are translated into steel and electricity mixes.
-- Study embodied-emission calculations for steel policy scenarios.
+Couples integrated assessment scenarios with technology-specific supply-chain accounting to examine steel decarbonisation policies.
 
-## Before you run it
+Baseline, CBAM and subsidy scenarios; steel and electricity pathways, GHG and energy footprints.
 
-**Setup to document.** The source contains MARIO code and GCAM steel and electricity inputs, but has no README or environment. Its association with the linked paper is a catalog candidate awaiting confirmation; the end-to-end workflow is not verified.
+## Database
 
-MARIO distribution: `mariopy`; version: **not pinned in this catalog**.
+Uses an extended EXIOBASE Hybrid steel database. The paper cites the Green steel archive; the later coupling example explicitly pins version 1.3.0.
 
-- [Extended steel database cited by the paper](https://doi.org/10.5281/zenodo.10843374) — This is the archive cited by the paper. Compatibility with this source revision still needs confirmation.
+[Database lineage](../databases.md)
 
-## Publications
+## Available editions
 
-- [Linking Global Integrated Assessment and Hybrid Input–Output Models To Support Steel Decarbonization Policies in Europe](https://doi.org/10.1021/acs.est.5c15099). **Study association to confirm.**
+### Original study scripts
 
-## Further resources
+Original database-building, GCAM preparation, shock and result-processing scripts.
 
-- [GCAM version cited by the paper](https://github.com/russellhz/gcam-core/tree/Study9_IAMCOMPACT)
+[Code and instructions](https://github.com/SESAM-Polimi/ExioSteel/blob/151dcf6bcdeed5a3f76277ace5decf93c408066a/shocks_analysis.py) · [Recorded revision 151dcf6b](https://github.com/SESAM-Polimi/ExioSteel/tree/151dcf6bcdeed5a3f76277ace5decf93c408066a)
 
-## Source and verification
+* [Database archive cited by the paper](https://doi.org/10.5281/zenodo.10843374)
+* [GCAM version cited by the paper](https://github.com/russellhz/gcam-core/tree/Study9_IAMCOMPACT)
+* [Published inputs and results](https://doi.org/10.1021/acs.est.5c15099.s001)
 
-Source maintained by [SESAM-Polimi](https://github.com/SESAM-Polimi). This catalog records revision [`151dcf6bcdee`](https://github.com/SESAM-Polimi/ExioSteel/tree/151dcf6bcdeed5a3f76277ace5decf93c408066a), inspected on 2026-10-24.
+The scripts require external files and local path configuration. Full paper reproduction and the exact archived database edition remain to be verified.
 
-**Execution has not been independently checked for this catalog.** The source review identifies available code and documentation; it does not certify reproduction of published results. Consult the source repository and data providers for their reuse terms.
+* [Study sources and reproduction scope](https://github.com/SESAM-Polimi/ExioSteel/blob/be43497a18302f7c2ad0df13a3cb6b6536355839/docs/research-workflow.md)
 
-[Suggest a correction](../CONTRIBUTING.md)
+### Executable coupling example
+
+Reads GCAM exports and applies electricity and steel mix changes to a teaching database or the extended EXIOBASE source.
+
+[Code and instructions](https://github.com/SESAM-Polimi/ExioSteel/blob/be43497a18302f7c2ad0df13a3cb6b6536355839/notebooks/GCAM_to_MARIO.ipynb) · [Recorded revision be43497a](https://github.com/SESAM-Polimi/ExioSteel/tree/be43497a18302f7c2ad0df13a3cb6b6536355839)
+
+* [Green steel database · v1.3.0](https://zenodo.org/records/16779787)
+
+This development example preserves background demand and trade. It demonstrates the coupling mechanism and does not reproduce all study scenarios or figures.
+
+* [Source-reported execution · 26 October 2026](https://github.com/SESAM-Polimi/ExioSteel/blob/be43497a18302f7c2ad0df13a3cb6b6536355839/verification/full-model.json)
+
+## Related studies
+
+* [EU steel decarbonisation](steel-transition-eu.md)
+* [Solar PV reshoring](pv-hlca.md)
+
+Source review: 2026-11-16. Models have not been rerun by the gallery. Execution evidence linked above belongs to the source maintainers.
+
+[All models](../README.md)
